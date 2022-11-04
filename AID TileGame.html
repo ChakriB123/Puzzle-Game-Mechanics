@@ -1,0 +1,330 @@
+<html>
+    
+    <canvas id="mycanvas" width="700" height="600" style=" border: 4px #fc0e0e"></canvas>
+    
+  <script>
+      
+      
+        var g_Canvas = document.getElementById("mycanvas");
+        var g_Ctx = g_Canvas.getContext("2d");
+      
+       var g_FrameRate = 30;
+       var g_TimeInterval = 1000/g_FrameRate;
+      
+      var g_TimeOnFlag = 0;
+      
+      var g_Move = 0;
+      
+      var g_Milsec = 0;
+      var g_sec = 0;
+      var g_mins = 0;
+      
+      
+      class C_tiles
+          {
+              constructor(Xpos,Ypos,tile_string)
+              {
+                  this.Xpos = Xpos;
+                  this.Ypos = Ypos;
+                  this.Size = 50;
+                  this.Tile_String = tile_string;
+              }
+              
+            m_DrawTile()
+              {
+                  g_Ctx.strokeStyle = "black"
+                  g_Ctx.strokeRect(this.Xpos,this.Ypos,this.Size,this.Size)
+                  g_Ctx.font = "30px calibri";
+                  g_Ctx.fillText(this.Tile_String,this.Xpos+10,this.Ypos+30,this.Size)
+              }
+              
+          }
+      
+      
+      
+      
+      function f_MovesCounter()
+      {
+          g_Move += 1;
+      }
+      
+      function f_DrawMovesCounter()
+      {
+          g_Ctx.font = "30px calibri";
+          g_Ctx.fillText("MOVES " +g_Move,10,30); 
+          g_Ctx.fillText("TIME "+g_mins +":"+g_sec,550,30); 
+      }
+      
+      
+      
+      var g_TileArray ;
+    
+      
+      var DistBtw_Xpos = 0;
+      var DistBtw_Ypos = 0;
+      var index = 0
+      
+      var StringArray = new Array();
+      
+      
+      StringArray = [1,6,2,4,"",5,3,8,9,10,7,11,13,14,15,12];
+          
+      
+      
+      
+      function f_CreateTiles(l_row,l_column)
+      {
+          g_TileArray = new Array(l_row*l_column);
+         
+          
+          for(var i = 0; i<l_row; i++)
+              {
+                  for(var j =0; j<l_column; j++)
+                      {
+                          DistBtw_Xpos = 200 + 50*j; 
+                          DistBtw_Ypos = 200 + 50*i;
+                          
+                      g_TileArray[index] = new C_tiles(DistBtw_Xpos,DistBtw_Ypos,StringArray[index]);
+                      index++;
+          
+                      
+                      }
+              }
+         
+          
+      }
+    
+      
+      
+      
+      
+   function f_DrawTiles()
+      {
+          for(var i =0; i<g_TileArray.length; i++)
+              {
+                  
+                  g_TileArray[i].m_DrawTile();
+                  
+              }
+      }
+      
+      
+      function f_ClearTiles()
+            {
+                   g_Ctx.clearRect(0,0,g_Canvas.width,g_Canvas.height);
+                   g_Ctx.strokeRect(0,0,g_Canvas.width,g_Canvas.height);
+            }
+      
+     function f_timecounter()
+      {
+          if(g_TimeOnFlag == 1)
+              {
+                  g_Milsec += 30
+                  if(g_Milsec == 900)
+                      {
+                          g_Milsec = 0;
+                          g_sec++;
+                      }
+                  if(g_sec == 60)
+                      {
+                          g_sec = 0;
+                          g_mins++;
+                      }
+              }
+      }
+    
+  function f_MouseClick(event)
+    {
+           // console.log(event.clientX+"__"+event.clientY);
+        
+        for(var i=0;i<g_TileArray.length;i++)
+            {
+                if(event.clientX > g_TileArray[i].Xpos && 
+                   event.clientX < (g_TileArray[i].Xpos + g_TileArray[i].Size) && 
+                   event.clientY > g_TileArray[i].Ypos && 
+                   event.clientY < (g_TileArray[i].Ypos+ g_TileArray[i].Size))
+                    {
+                        f_MovesCounter(); 
+                        g_TimeOnFlag = 1;
+                        console.log("index : "+i);
+                        console.log("value : " + g_TileArray[i].Tile_String);
+                        console.log("----clickedvalue----");
+                        f_NeighborIndex(i,g_column,g_row);
+                        f_SwapingValues(i);
+                        
+                        break;
+                        
+                    }
+            } 
+        
+        
+            
+    }
+      
+      
+                var LeftIndex = 0;
+                var RightIndex = 0;
+                var TopIndex = 0;
+                var BottomIndex = 0;
+      
+      
+      function f_NeighborIndex(l_i,l_column,l_row)
+      {    
+                 LeftIndex = l_i-1;
+                 RightIndex = l_i+1;
+                 TopIndex = l_i-l_column;
+                 BottomIndex = l_i+l_column;
+                      
+          
+            if(LeftIndex < 0 || LeftIndex > (l_column *l_row - 1))
+               {
+                  LeftIndex = null;
+               }
+            
+            if(RightIndex < 0 || RightIndex > (l_column *l_row - 1))
+               {
+                     RightIndex = null;
+               }
+          
+            if(TopIndex < 0 || TopIndex > (l_column *l_row - 1))
+               {
+                    TopIndex = null;
+               }
+          
+            if(BottomIndex < 0 || BottomIndex > (l_column *l_row - 1))
+               {
+                    BottomIndex = null;
+               }
+          
+            if(l_i%l_column == 0)
+               {
+                   LeftIndex = null;
+               }
+          
+            if((l_i+1)%l_column == 0)
+               {
+                   RightIndex = null;
+               }
+          
+                    console.log("top : "+TopIndex);
+                    console.log("right : "+RightIndex);
+                    console.log("Bottom : "+BottomIndex);
+                    console.log("left : "+LeftIndex);
+          
+          
+                  
+      
+      }
+      
+    function f_SwapingValues(l_i)
+      {
+           if(LeftIndex != null)
+               {
+                   if(g_TileArray[LeftIndex].Tile_String == "")
+                       {
+                           var swap = g_TileArray[l_i].Tile_String;
+                           g_TileArray[l_i].Tile_String = g_TileArray[LeftIndex].Tile_String;
+                           g_TileArray[LeftIndex].Tile_String = swap ;
+                       }
+     
+               }
+            
+          if(RightIndex != null)
+               {
+                   if(g_TileArray[RightIndex].Tile_String == "")
+                       {
+                           var swap = g_TileArray[l_i].Tile_String;
+                           g_TileArray[l_i].Tile_String = g_TileArray[RightIndex].Tile_String;
+                           g_TileArray[RightIndex].Tile_String = swap ;
+                       }
+     
+               }
+          
+          if(TopIndex != null)
+               {
+                   if(g_TileArray[TopIndex].Tile_String == "")
+                       {
+                           var swap = g_TileArray[l_i].Tile_String;
+                           g_TileArray[l_i].Tile_String = g_TileArray[TopIndex].Tile_String;
+                           g_TileArray[TopIndex].Tile_String = swap ;
+                       }
+     
+               }
+          
+          if(BottomIndex != null)
+               {
+                   if(g_TileArray[BottomIndex].Tile_String == "")
+                       {
+                           var swap = g_TileArray[l_i].Tile_String;
+                           g_TileArray[l_i].Tile_String = g_TileArray[BottomIndex].Tile_String;
+                           g_TileArray[BottomIndex].Tile_String = swap ;
+                       }
+     
+               }
+          
+      }
+      
+      function f_NextLevel()
+          {
+             if(g_TileArray[11].Tile_String == 12 &&
+                g_TileArray[14].Tile_String == 15 &&
+                g_TileArray[15].Tile_String == "")
+                {
+                    g_Ctx.font = "50px calibri";
+                    g_Ctx.fillText("NEXT LEVEL " ,250,300)
+                }   
+          
+          }
+      
+    /*  function f_NextLevelDraw()
+         {
+                g_Ctx.font = "50px calibri";
+                g_Ctx.fillText("NEXT LEVEL " ,250,300)
+         }*/
+      
+      function f_ResetValues()
+          {
+             for(var i = 0; i<g_TileArray.length; i++)
+                 {
+                     g_TileArray[i].Tile_String = (i+1);
+                 }
+          }
+      
+      var g_row = 4;
+      var g_column = 4;
+      
+      f_CreateTiles(g_row,g_column);
+      
+    function f_GameLoop()
+          {
+              
+                      
+                          f_timecounter();
+                          f_ClearTiles();
+                          f_DrawTiles();
+                          f_NextLevel();
+                          f_DrawMovesCounter();
+                  
+              
+             
+              
+          }
+      
+      
+    
+      
+      
+    setInterval(f_GameLoop,g_TimeInterval)
+      
+      
+    document.addEventListener("click",f_MouseClick);
+      
+      
+      
+      
+      
+      
+      
+      
+         </script>
+</html>
